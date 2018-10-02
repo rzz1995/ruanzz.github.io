@@ -1,2 +1,0 @@
-# ruanzz.github.io
-Blog
