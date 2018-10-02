@@ -1,7 +1,7 @@
 language: node_js
 sudo: required
 node_js: 
-  - 7.9.0
+  - 8.9.4
 
 cache:
   directories:
@@ -22,11 +22,11 @@ before_script:
 
 script:
   - hexo clean
-  - hexo generate
+  - hexo g
 
 after_script:
   - git config user.name "ruanzz"
   - git config user.email "rzz1995@live.com"
   - sed -i "s/GitHub_Token/${GitHub_Token}/g" ./_config.yml
   - cat ./_config.yml
-  - hexo deploy
+  - hexo d
