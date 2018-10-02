@@ -79,5 +79,5 @@ theme: yilia
 ## Docs: https://hexo.io/docs/deployment.html
 deploy:
   type: git
-  repo:	https://Github_Token@github.com/ruanzz/ruanzz.github.io.git
+  repo:	https://GitHub_Token@github.com/ruanzz/ruanzz.github.io.git
   branch: master
