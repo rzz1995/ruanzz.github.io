@@ -16,7 +16,9 @@ before_install:
 
 install:
   - npm install
-  - npm install hexo-deployer-git --save
+  #- npm install hexo-deployer-git --save
+  - npm install hexo-deployer-heroku --save
+
 
 before_script:
 
