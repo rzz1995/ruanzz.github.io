@@ -12,12 +12,11 @@ branches:
     - source 
 
 before_install:
-  - npm install -g hexo-cli
+  - npm install -g hexo
 
 install:
   - npm install
-  #- npm install hexo-deployer-git --save
-  - npm install hexo-deployer-heroku --save
+  - npm install hexo-deployer-git --save
 
 
 before_script:
