@@ -3,11 +3,11 @@
 ## Source: https://github.com/hexojs/hexo/
 
 # Site
-title: Hexo
+title: Ryan's Blog
 subtitle:
 description:
 keywords:
-author: John Doe
+author: Ryan
 language:
 timezone:
 
@@ -75,9 +75,31 @@ pagination_dir: page
 ## Themes: https://hexo.io/themes/
 theme: yilia
 
+# JsonContent
+jsonContent:
+    meta: false
+    pages: false
+    posts:
+      title: true
+      date: true
+      path: true
+      text: false
+      raw: false
+      content: false
+      slug: false
+      updated: false
+      comments: false
+      link: false
+      permalink: false
+      excerpt: false
+      categories: false
+      tags: true
+
+
 # Deployment
 ## Docs: https://hexo.io/docs/deployment.html
 deploy:
   type: git
   repo:	https://GitHub_Token@github.com/ruanzz/ruanzz.github.io.git
   branch: master
+
