@@ -1,0 +1,58 @@
+# 头部菜单，title: link
+menu:
+  Whoami: /whoami
+  Github: https://github.com/ruanzz
+  Mail: mailto:rzz1995@live.com
+
+# 是否显示目录
+TOC: true
+
+# 是否自动播放音乐
+autoplay: true
+
+# 默认音乐
+mp3: 
+  - http://link.hhtjim.com/163/1305861056.mp3
+  - http://link.hhtjim.com/163/5146554.mp3
+  - http://link.hhtjim.com/qq/001faIUs4M2zna.mp3
+ 
+
+# 首页封面图, 为空时取文章的cover作为封面
+welcome_cover: #
+
+# 默认文章封面图
+cover: /img/guilin.png
+
+# 是否关闭默认滚动条
+scrollbar: true
+
+# Gitalk 评论插件（https://github.com/gitalk/gitalk）
+gitalk:
+    # 是否自动展开评论框
+    autoExpand: false
+    # 应用编号
+    clientID: '6edf88cada27d7c3cc39'
+    # 应用秘钥
+    clientSecret: 'becb44d7a3c3c3ab6d5c9bccd2dbcdf15743a1cf'
+    # issue仓库名
+    repo: 'https://github.com/ruanzz/Gittalk.git'
+    # Github名
+    owner: 'ruanzz'
+    # Github名
+    admin: ['ruanzz']
+    # Ensure uniqueness and length less than 50
+    id: location.href
+    # Facebook-like distraction free mode
+    distractionFreeMode: false
+
+# 网站关键字
+keywords: Ryan
+
+# 要使用google_analytics进行统计的话，这里需要配置ID
+google_analytics: 
+
+# 网站ico
+favicon: asset/img/favicon.jpg
+
+# rss文件
+rss: atom.xml
