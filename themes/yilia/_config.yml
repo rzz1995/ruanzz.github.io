@@ -91,11 +91,11 @@ changyan_conf: false
 disqus: false
 
 #5、Gitment
-gitment_owner: 'ruanzz'      #你的 GitHub ID
-gitment_repo: 'Gittalk'          #存储评论的 repo
+gitment_owner:       #你的 GitHub ID
+gitment_repo:           #存储评论的 repo
 gitment_oauth:
-  client_id: '6edf88cada27d7c3cc39'           #client ID
-  client_secret: 'becb44d7a3c3c3ab6d5c9bccd2dbcdf15743a1cf'       #client secret
+  client_id:          #client ID
+  client_secret:       #client secret
 
 # 样式定制 - 一般不需要修改，除非有很强的定制欲望…
 style:
@@ -120,6 +120,6 @@ smart_menu:
   aboutme: '关于'
 
 friends:
-  zhisheng: http://www.54tianzhisheng.cn
+  江南白衣: http://calvin1978.blogcn.com
 
-aboutme: 武汉某高校毕业<br/><br/>码农一枚，写码为生<br/>年轻无为，写码为生</br><br/>尽可能多的去体验<br/>尽可能多的去思考
+aboutme: 武汉某高校毕业<br/><br/>年轻无为，写码为生</br><br/>尽可能多的去体验<br/>尽可能多的去思考
