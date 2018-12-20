@@ -94,6 +94,8 @@ MySQL数据库是C/S架构模式，我们关心的是Server端，也就是mysqld
 ### 3.1 SpringFramework
 > 1.简单谈谈Spring的IOC和AOP,都在哪些场景用到过？
 
+IOC是控制反转，就是对象的创建工作交给Spring容器来做，程序员不需要new出来，需要什么就跟Spring容器要，前提是容器里边有这个对象，底层实现是反射。AOP是面向切面编程，在记录日志，权限控制，事务方面都有应用，底层实现是动态代理。
+
 > 2.Spring中Bean生命周期过程，以及两种作用域Singleton和Prototype有什么区别，应用场景有哪些？
 
 > 3.AOP动态代理模式的两种类型,区别是什么？
