@@ -166,6 +166,11 @@ PROPAGATION_NESTED：如果当前事务存在，则已嵌套事务执行
 ### 3.2 SpringMVC
 > 1.SpringMVC的作用，与Struct的区别是什么？
 
+SpringMVC是一个基于请求驱动的Web框架，使用了前端控制器模式来设计，再根据请求映射规则分发给相应的页面控制器进行处理。简单点就是处理http请求和响应。
+区别：
+- SpringMVC是基于Servlet来实现，Struct是基于Filter来实现的。
+- SpringMVC是基于方法级别的拦截，一个方法对应一个request上下文，Controller Bean默认是sigleton的，只会创建一个Controller，但是没有共享的属性，所以是线程安全。Struct是基于类级别的拦截，每次请求都会创建一个Action，Action Bean在Spring容器中是prototype的，通过setter方法将request注入到属性当中。
+
 > 2.SpringMVC的工作原理，都涉及到哪些类？
 
 ## 4. 计算机网络
