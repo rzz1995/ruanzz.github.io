@@ -173,6 +173,29 @@ SpringMVC是一个基于请求驱动的Web框架，使用了前端控制器模�
 
 > 2.SpringMVC的工作原理，都涉及到哪些类？
 
+1.用户发送请求至前端控制器DispatherServlet
+
+2.DispatherServlet接收到请求之后调用HandlerMapping处理映射器
+
+3.处理映射器找到具体的处理类(xml配置，注解)，生成处理器对象及处理拦截器一并返回给
+DispatherServlet
+
+4.DispatherServlet调用HandlerAdapter处理适配器
+
+5.HandlerAdapter经过适配调用具体的处理器(Controller)
+
+6.Controller执行完成返回ModelAndView对象
+
+7.HandlerAdapter将ModelAndView返回给DispatherServlet
+
+8.DispatherServlet将ModelAndView对象返回给ViewResolver视图解析器
+
+9.ViewResolver解析后返回具体的View
+
+10.DispatherServlet根据View进行渲染视图
+
+11.DispatherServlet响应用户
+
 ## 4. 计算机网络
 
 > 1.谈谈TCP/IP模型
