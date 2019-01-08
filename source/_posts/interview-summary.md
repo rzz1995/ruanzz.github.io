@@ -46,6 +46,51 @@ Java泛型的实现原理是类型擦除，是在编译器这个层次来实现�
 
 ### 集合
 ### 多线程
+
+>1.Java中有几种方式可以创建线程？
+
+- 继承`Thread`并重写`run`方法
+- 实现`Runnable`接口并重写`run`方法，并将作为参数传入`Thread`
+- 实现`Callable`接口并重写`call`方法，`call`方法有返回值
+- 由线程池创建并管理线程
+
+>2.Java线程池怎么实现的？主要核心类讲一下
+
+`Executors`是线程池的工厂类，通过调用它的静态方法来创建线程池，比如`newCachedThreadPool()`方法，这些静态方法统一返回一个`ThreadPoolExecutor`。
+```java
+public ThreadPoolExecutor(int corePoolSize,
+                        int maximumPoolSize,
+                        long keepAliveTime,
+                        TimeUnit unit,
+                        BlockingQueue<Runnable> workQueue,
+                        ThreadFactory threadFactory,
+                        RejectedExecutionHandler handler) {
+    
+}
+```
+参数解释：
+- corePoolSize: 指定线程池中线程的数量
+- maximumPoolSize: 线程池中最大的线程池数量
+- keepAliveTime: 当线程池中的线程数量超过corePoolSize的时候，多余的线程最大的存活时间
+- unit: keepAliveTime的单位
+- workQueue: 任务队列，被提交但还未被执行的任务
+- threadFactory: 线程工厂，用于创建线程
+- handler: 拒绝策略，当任务太多来不及处理的时候，采用什么方式拒绝任务
+
+核心参数: workQueue和handler
+【workQueue】
+有`ArrayBlockingQueue`有界队列，`LinkedBlockingQueue`无界队列，`SynchronousQueue`直接提交队列
+`ArrayBlockingQueue`：当线程池中实际线程数小于corePoolSize时，直接创建线程执行任务，当大于corePoolSize时，提交到workQueue中，因为这个队列是有界的，当队列满时，在不大于maximumPoolSize的情况下，创建线程执行任务，如果大于maximumPoolSize，执行拒绝策略handler
+`LinkedBlockingQueue`：当线程池中实际线程数小于corePoolSize时，直接创建线程执行任务，当大于corePoolSize小于maximumPoolSize时，提交到workQueue中，因为队列是无界的，所以之后提交的任务都会进入队列中
+`SynchronousQueue`：该队列没有容量，对提交的任务不做保存，直接新增线程来执行任务。
+
+【handler】
+- 直接抛异常
+- 在调用者的线程中执行当前任务
+- 丢弃最老的一个请求，将队列头的任务poll出去
+- 直接丢弃无法处理的任务，不做任何处理
+
+
 ### IO
 ### JVM
 >1.ClassLoader的种类，父子关系(不一定是继承)，双亲委派机制，Java为什么要用双亲委派机制?
@@ -348,3 +393,5 @@ HTTP响应报文结构：
   对于POST请求方式，浏览器先发送header，服务器响应100继续，浏览器在发送data，服务器接收请求返回数据
 
 ## 算法
+
+
