@@ -1,14 +1,16 @@
 ---
-title: 高性能Nginx
+title: 高性能Nginx(一)
 date: 2018-12-22 09:56:20
 tags: [Web,Nginx]
 toc: true
 ---
-![Nginx服务网关](/asset/img/nginx/nginx.png)
+<!-- ![Nginx服务网关](/asset/img/nginx/nginx.png) -->
 
+Nginx是后端开发人员应该都会接触的一款基础软件，以支持高并发访问面世，在开发环境中经常会配置一些Nginx参数来支持我们开发，那么问题来了，你有系统的了解过吗？
 <!-- more -->
 
-## Nginx是什么？
+##Nginx是什么？
+
 Nginx是一个高性能的Web和反向代理服务器。
 
 ## Nginx应用场景

@@ -4,11 +4,11 @@ date: 2018-12-18 21:47:55
 tags: [interview,Java]
 toc: true
 ---
-![惠灵顿](/asset/img/interview-summary/Mac.jpeg)
+<!-- ![惠灵顿](/asset/img/interview-summary/Mac.jpeg) -->
 
-<!-- more -->
+
 这个冬天有点冷，冬天了还是储藏点过冬的粮食，用倒推法来总结相关知识，这篇博客将会长期更新，收集网上的面试题，然后自己整理思路，以后自己肯定会用的上，也为以后博客积累素材。
-
+<!-- more -->
 ## Java基础
 ### 语法糖
 >1.String类有看过源码吗？和StringBuffer，StringBuilder有什么区别？
