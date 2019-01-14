@@ -45,6 +45,14 @@ Java泛型的实现原理是类型擦除，是在编译器这个层次来实现�
 (3) 向上转型： 父类引用指向子类
 
 ### 集合
+
+>1.Java的集合类框架介绍一下
+最顶层接口是分别是Collection和Map
+【Collection】
+Collection的实现类有List、Set和Queue。List的实现类有ArrayList和LinkedList等，ArrayList是一个可扩容的对象数组，LinkedList是一个双向链表。Set里的元素是不可重复，常见的有HashSet，TreeSet，LinkedHashSet等，HashSet的实现基于HashMap，实际上就是HashMap中的key。Queue的实现类有LinkedList，可以用作栈，队列和双向队列，另外还有ArrayBlockingQueue等。
+【Map】
+Map的实现类常见的有HashMap，TreeMap，LinkedHashMap和HashTable等，HashMap使用散列法实现，底层是数组+链表。TreeMap是根据键排好序的Map，使用红黑树实现。LinkedHashMap的实现综合了HashMap和双向链表，可保证以插入时的顺序进行迭代访问。HashTable和HashMap相比，HashTable是线程安全的，HashMap是线程不安全的，HashTable的键或值不允许为null，HashMap允许。
+
 ### 多线程
 
 >1.Java中有几种方式可以创建线程？
