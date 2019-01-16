@@ -255,6 +255,43 @@ public E get(int index) {
 (2)数据不一致：读操作不能读取实时性的数据，因为部分写操作的数据还未同步到读数组中。
 所以`CopyOnWriteArrayList`不适合内存敏感以及对实时性要求很高的场景。
 
+>6.LinkedList源码分析
+
+基于双向链表实现，使用Node存储链表节点信息。
+```java
+private static class Node<E> {
+        E item;
+        Node<E> next;
+        Node<E> prev;
+
+        Node(Node<E> prev, E element, Node<E> next) {
+            this.item = element;
+            this.next = next;
+            this.prev = prev;
+        }
+    }
+```
+并且每个链表存储了first和last指针：
+```java
+/**
+ * Pointer to first node.
+ * Invariant: (first == null && last == null) ||
+ *            (first.prev == null && first.item != null)
+ */
+transient Node<E> first;
+    
+/**
+ * Pointer to last node.
+ * Invariant: (first == null && last == null) ||
+ *            (last.next == null && last.item != null)
+ */
+transient Node<E> last;
+```
+跟ArrayList相比：
+(1)ArrayList基于动态数组实现，LinkedList基于双向链表实现
+(2)ArrayList支持随机访问，LinkedList不支持
+(3)LinkedList在任意位置添加删除元素更快
+
 ### 多线程
 
 >1.Java中有几种方式可以创建线程？
