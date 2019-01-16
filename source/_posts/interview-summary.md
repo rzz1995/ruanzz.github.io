@@ -191,6 +191,34 @@ private void writeObject(java.io.ObjectOutputStream s)
     }
 ```
 
+>4.Vector源码分析
+
+实现大体上与ArrayList类似，但是使用synchronized进行同步
+```java
+public synchronized boolean add(E var1) {
+    ++this.modCount;
+    this.ensureCapacityHelper(this.elementCount + 1);
+    this.elementData[this.elementCount++] = var1;
+    return true;
+  }
+
+public synchronized E get(int var1) {
+    if (var1 >= this.elementCount) {
+      throw new ArrayIndexOutOfBoundsException(var1);
+    } else {
+      return this.elementData(var1);
+    }
+  }
+  ```
+Vector是同步的，因此开销肯定比ArrayList大，访问速度更慢，因此不建议使用，应该使用ArrayList，如果需要到同步，可以使用`Collections.synchronizedList()`得到一个线程安全的ArrayList,或者使用concurrent包下的CopyOnWriteArrayList
+
+```java
+List<String> list = new ArrayList<>();
+List<String> synList = Collections.synchronizedList(list);
+List<String> copyOnWriteList = new CopyOnWriteArrayList<>();
+```
+
+
 ### 多线程
 
 >1.Java中有几种方式可以创建线程？
