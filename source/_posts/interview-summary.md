@@ -292,6 +292,188 @@ transient Node<E> last;
 (2)ArrayList支持随机访问，LinkedList不支持
 (3)LinkedList在任意位置添加删除元素更快
 
+>7.HashMap源码分析(JDK1.7)
+(1)存储结构
+包含一个Entry类型的数组table,Entry存储着键值对，包含了四个字段，从netx字段可以看出Entry是一个链表。即数组中的每个位置被当成一个桶，一个桶存放一个链表。HashMap使用拉链法来解决冲突，同一个链表中存放哈希值相同的Entry。
+```java
+transient Entry[] table;
+
+static class Entry<K,V> implements Map.Entry<K,V> {
+    final K key;
+    V value;
+    Entry<K,V> next;
+    int hash;
+
+    Entry(int h, K k, V v, Entry<K,V> n) {
+        value = v;
+        next = n;
+        key = k;
+        hash = h;
+    }
+
+    public final K getKey() {
+        return key;
+    }
+
+    public final V getValue() {
+        return value;
+    }
+
+    public final V setValue(V newValue) {
+        V oldValue = value;
+        value = newValue;
+        return oldValue;
+    }
+
+    public final boolean equals(Object o) {
+        if (!(o instanceof Map.Entry))
+            return false;
+        Map.Entry e = (Map.Entry)o;
+        Object k1 = getKey();
+        Object k2 = e.getKey();
+        if (k1 == k2 || (k1 != null && k1.equals(k2))) {
+            Object v1 = getValue();
+            Object v2 = e.getValue();
+            if (v1 == v2 || (v1 != null && v1.equals(v2)))
+                return true;
+        }
+        return false;
+    }
+
+    public final int hashCode() {
+        return Objects.hashCode(getKey()) ^ Objects.hashCode(getValue());
+    }
+
+    public final String toString() {
+        return getKey() + "=" + getValue();
+    }
+}
+
+```
+
+(2)拉链法原理
+```java
+Map<String,String> map = new HashMap<>();
+map.put("k1","v1");
+map.put("k2","v2");
+map.put("k3","v3");
+```
+新建一个HashMap,默认大小为16，插入<k1,v1>键值对，假设k1的hashcode为115，则115%16=3，则在table[3]插入<k1,v1>这个Entry，假设k2和k3的hashcode都是118，118%16=6，那么<k2,v2>和<k3,v3>都是插入table[6]这个桶内，<k3,v3>在<k2,v2>前面，即<k3,v3>的next元素是<k2,v2>,每次插入元素都是直接插入链表的表头。
+
+(3)get操作
+查找需要分为两步：
+①计算键值对所在的桶
+②在链表上顺序查找，时间复杂度显然和链表的长度成正比。
+
+如何确定键值对的桶下标呢？
+```java
+int hash = hash(key);
+int i = indexFor(hash, table.length);
+
+final int hash(Object k) {
+    int h = hashSeed;
+    if (0 != h && k instanceof String) {
+        return sun.misc.Hashing.stringHash32((String) k);
+    }
+
+    h ^= k.hashCode();
+
+    // This function ensures that hashCodes that differ only by
+    // constant multiples at each bit position have a bounded
+    // number of collisions (approximately 8 at default load factor).
+    h ^= (h >>> 20) ^ (h >>> 12);
+    return h ^ (h >>> 7) ^ (h >>> 4);
+}
+
+public final int hashCode() {
+    return Objects.hashCode(key) ^ Objects.hashCode(value);
+}
+
+static int indexFor(int h, int length) {
+    return h & (length-1);
+}
+```
+其实就是两步，先计算hash值，然后对table长度取模。计算hash值这个方法很常规，关键是取模indexFor()这个方法很有意思，正常的写法应该是`h%length`,但是jdk源码里边写的是`h&(length-1)`,第一次看到这个的时候我就愣了，jdk源码应该不会有这么大的bug！这两相等？研究了一下之后发现都是写代码的，人与人之间的差别不是一丁半点！！！
+
+假设x=1<<4,即x为2的4次方，y的值为10110010
+正常人取模：y%x
+y:10110010
+x:00010000
+y%x:00000010
+大神取模：y&(x-1)
+y:10110010
+x-1:00001111
+y&(x-1):00000010
+
+位运算的代价比求模运算小的多，因此带来更高的性能。但是这个有一个前提就是x必须是2的n次方，这样子x-1就会是一堆的1，和y做与运算之后就把y的高位干掉，只剩下低位，达到取模效果，这个不得不佩服！
+
+(4)put操作
+```java
+public V put(K key, V value) {
+    if (table == EMPTY_TABLE) {
+        inflateTable(threshold);
+    }
+    // 键为 null 单独处理
+    if (key == null)
+        return putForNullKey(value);
+    int hash = hash(key);
+    // 确定桶下标
+    int i = indexFor(hash, table.length);
+    // 先找出是否已经存在键为 key 的键值对，如果存在的话就更新这个键值对的值为 value
+    for (Entry<K,V> e = table[i]; e != null; e = e.next) {
+        Object k;
+        if (e.hash == hash && ((k = e.key) == key || key.equals(k))) {
+            V oldValue = e.value;
+            e.value = value;
+            e.recordAccess(this);
+            return oldValue;
+        }
+    }
+
+    modCount++;
+    // 插入新键值对
+    addEntry(hash, key, value, i);
+    return null;
+}
+
+private V putForNullKey(V value) {
+    for (Entry<K,V> e = table[0]; e != null; e = e.next) {
+        if (e.key == null) {
+            V oldValue = e.value;
+            e.value = value;
+            e.recordAccess(this);
+            return oldValue;
+        }
+    }
+    modCount++;
+    addEntry(0, null, value, 0);
+    return null;
+}
+
+void addEntry(int hash, K key, V value, int bucketIndex) {
+    if ((size >= threshold) && (null != table[bucketIndex])) {
+        resize(2 * table.length);
+        hash = (null != key) ? hash(key) : 0;
+        bucketIndex = indexFor(hash, table.length);
+    }
+
+    createEntry(hash, key, value, bucketIndex);
+}
+
+void createEntry(int hash, K key, V value, int bucketIndex) {
+    Entry<K,V> e = table[bucketIndex];
+    // 头插法，链表头部指向新的键值对
+    table[bucketIndex] = new Entry<>(hash, key, value, e);
+    size++;
+}
+```
+HashMapy允许插入键为null的键值对，但是无法调用null的hashCode()方法，也就无法确定该键值对的桶下标，只能通过强制指定一个桶下标来存放。HashMap使用第0个桶存放键为null的键值对。
+对于键不是null的键值对，使用链表的头插法，也就是新的键值对插在链表的头部，而不是链表的尾部。
+
+
+
+
+
 ### 多线程
 
 >1.Java中有几种方式可以创建线程？
