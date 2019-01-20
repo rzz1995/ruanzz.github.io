@@ -470,7 +470,92 @@ void createEntry(int hash, K key, V value, int bucketIndex) {
 HashMapy允许插入键为null的键值对，但是无法调用null的hashCode()方法，也就无法确定该键值对的桶下标，只能通过强制指定一个桶下标来存放。HashMap使用第0个桶存放键为null的键值对。
 对于键不是null的键值对，使用链表的头插法，也就是新的键值对插在链表的头部，而不是链表的尾部。
 
+(5) 扩容原理
+假设HashMap的table长度为M，需要存储的键值对数量为N，如果哈希函数满足均匀性的要求，那么每条链表的长度为N/M,因此平均查找次数的复杂度为O(N/M)。
+为了让查找的成本降低，应该尽可能使得N/M尽可能小，因此需要M足够大，HashMap采用动态扩容来根据当前的N值来调整M值，使得空间效率和时间效率都得到保证。
 
+```java
+/** 初始容量 */
+static final int DEFAULT_INITIAL_CAPACITY = 16;
+
+/** 最大容量 */
+static final int MAXIMUM_CAPACITY = 1 << 30;
+
+/** 默认负载因子 */
+static final float DEFAULT_LOAD_FACTOR = 0.75f;
+
+/** Entry数组 */
+transient Entry[] table;
+
+/** 键值对数量 */
+transient int size;
+
+/** 阈值 */
+int threshold;
+
+/** 负载因子 */
+final float loadFactor;
+
+/** 修改次数 */
+transient int modCount;
+```
+当需要size大于threshold时，需要进行扩容操作，capacity为原来的两倍，扩容操作需要把oldTable中的所有键值对重新插入newTable中，这个步骤是非常耗时的。因此，如果知道table大小的话最好通过构造函数传入，避免后续扩容造成性能问题。
+```java
+void addEntry(int hash, K key, V value, int bucketIndex) {
+    Entry<K,V> e = table[bucketIndex];
+    table[bucketIndex] = new Entry<>(hash, key, value, e);
+    if (size++ >= threshold)
+        resize(2 * table.length);
+}
+
+void resize(int newCapacity) {
+    Entry[] oldTable = table;
+    int oldCapacity = oldTable.length;
+    if (oldCapacity == MAXIMUM_CAPACITY) {
+        threshold = Integer.MAX_VALUE;
+        return;
+    }
+    Entry[] newTable = new Entry[newCapacity];
+    transfer(newTable);
+    table = newTable;
+    threshold = (int)(newCapacity * loadFactor);
+}
+
+void transfer(Entry[] newTable) {
+    Entry[] src = table;
+    int newCapacity = newTable.length;
+    for (int j = 0; j < src.length; j++) {
+        Entry<K,V> e = src[j];
+        if (e != null) {
+            src[j] = null;
+            do {
+                Entry<K,V> next = e.next;
+                int i = indexFor(e.hash, newCapacity);
+                e.next = newTable[i];
+                newTable[i] = e;
+                e = next;
+            } while (e != null);
+        }
+    }
+}
+```
+那么问题来了，扩容之后把原来table的entry复制到新的table中，并且table长度变了，那原来的hash值又要重新计算一遍？是的！HashMap使用了一个特殊的机制，可以降低重新计算桶下标的操作，假设原来的table长度为16(00010000)，扩容之后的table长度为32(00100000)，对于一个key，如果它的hash值第五位上为0，那么取模结果和以前一样，如果为1，那么得到的结果为原来的加上16。
+
+(6)计算table容量
+```java
+/**
+  * Returns a power of two size for the given target capacity.
+  */
+static final int tableSizeFor(int cap) {
+    int n = cap - 1;
+    n |= n >>> 1;
+    n |= n >>> 2;
+    n |= n >>> 4;
+    n |= n >>> 8;
+    n |= n >>> 16;
+    return (n < 0) ? 1 : (n >= MAXIMUM_CAPACITY) ? MAXIMUM_CAPACITY : n + 1;
+}
+```
 
 
 
