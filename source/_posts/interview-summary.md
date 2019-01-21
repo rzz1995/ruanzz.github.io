@@ -293,6 +293,7 @@ transient Node<E> last;
 (3)LinkedList在任意位置添加删除元素更快
 
 >7.HashMap源码分析(JDK1.7)
+
 (1)存储结构
 包含一个Entry类型的数组table,Entry存储着键值对，包含了四个字段，从netx字段可以看出Entry是一个链表。即数组中的每个位置被当成一个桶，一个桶存放一个链表。HashMap使用拉链法来解决冲突，同一个链表中存放哈希值相同的Entry。
 ```java
@@ -557,6 +558,91 @@ static final int tableSizeFor(int cap) {
 }
 ```
 
+> 8.ConcurrentHashMap源码分析(JDK1.7)
+
+`ConcurrentHashMap`和`HashMap`实现上类似，最主要区别是`ConcurrentHashMap`采用了分段锁(Segment),每个分段锁维护着几个同(HashEntry),多个线程可以同时访问不同分段锁上的桶，从而使其并发度更高，并发度就是Segment的个数。
+```java
+static final class Segment<K,V> extends ReentrantLock implements Serializable {
+
+    private static final long serialVersionUID = 2249069246763182397L;
+
+    static final int MAX_SCAN_RETRIES =
+        Runtime.getRuntime().availableProcessors() > 1 ? 64 : 1;
+
+    transient volatile HashEntry<K,V>[] table;
+
+    transient int count;
+
+    transient int modCount;
+
+    transient int threshold;
+
+    final float loadFactor;
+}
+
+static final class HashEntry<K,V> {
+    final int hash;
+    final K key;
+    volatile V value;
+    volatile HashEntry<K,V> next;
+}
+
+/** 默认的并发级别为 16，也就是说默认创建 16 个 Segment */
+static final int DEFAULT_CONCURRENCY_LEVEL = 16;
+```
+每个Segment维护一个count变量来统计该Segment中的键值对个数，在执行size()方法时，需要遍历所有的Segment然后把count累计起来。ConcurrentHashMap在执行size()时，先尝试不加锁获取，如果连续两次不加锁获取的结果一致，那么可以认为这个结果是正确的。尝试次数超过3次，就需要对每个Segment进行加锁。
+```java
+/**
+ * Number of unsynchronized retries in size and containsValue
+ * methods before resorting to locking. This is used to avoid
+ * unbounded retries if tables undergo continuous modification
+ * which would make it impossible to obtain an accurate result.
+ */
+static final int RETRIES_BEFORE_LOCK = 2;
+
+public int size() {
+    // Try a few times to get accurate count. On failure due to
+    // continuous async changes in table, resort to locking.
+    final Segment<K,V>[] segments = this.segments;
+    int size;
+    boolean overflow; // true if size overflows 32 bits
+    long sum;         // sum of modCounts
+    long last = 0L;   // previous sum
+    int retries = -1; // first iteration isn't retry
+    try {
+        for (;;) {
+            // 超过尝试次数，则对每个 Segment 加锁
+            if (retries++ == RETRIES_BEFORE_LOCK) {
+                for (int j = 0; j < segments.length; ++j)
+                    ensureSegment(j).lock(); // force creation
+            }
+            sum = 0L;
+            size = 0;
+            overflow = false;
+            for (int j = 0; j < segments.length; ++j) {
+                Segment<K,V> seg = segmentAt(segments, j);
+                if (seg != null) {
+                    sum += seg.modCount;
+                    int c = seg.count;
+                    if (c < 0 || (size += c) < 0)
+                        overflow = true;
+                }
+            }
+            // 连续两次得到的结果一致，则认为这个结果是正确的
+            if (sum == last)
+                break;
+            last = sum;
+        }
+    } finally {
+        if (retries > RETRIES_BEFORE_LOCK) {
+            for (int j = 0; j < segments.length; ++j)
+                segmentAt(segments, j).unlock();
+        }
+    }
+    return overflow ? Integer.MAX_VALUE : size;
+}
+```
+JDK 1.7 使用分段锁机制来实现并发更新操作，核心类为 Segment，它继承自重入锁 ReentrantLock，并发度与 Segment 数量相等。JDK 1.8 使用了CAS操作来支持更高的并发度，在CAS操作失败时使用内置锁 synchronized。
 
 
 ### 多线程
