@@ -644,6 +644,81 @@ public int size() {
 ```
 JDK 1.7 使用分段锁机制来实现并发更新操作，核心类为 Segment，它继承自重入锁 ReentrantLock，并发度与 Segment 数量相等。JDK 1.8 使用了CAS操作来支持更高的并发度，在CAS操作失败时使用内置锁 synchronized。
 
+>9.LinkedHashMap源码分析(JDK1.7)
+
+`LinkedHashMap`继承自HashMap，因此有HashMap的所有特性
+```java
+public class LinkedHashMap<K,V>
+    extends HashMap<K,V>
+    implements Map<K,V>{
+
+    }
+```
+内部维护了一个双向列表，用来维护插入顺序或者LRU顺序。
+```java
+/**
+  * The head (eldest) of the doubly linked list.
+  */
+transient LinkedHashMap.Entry<K,V> head;
+
+/**
+  * The tail (youngest) of the doubly linked list.
+  */
+transient LinkedHashMap.Entry<K,V> tail;
+
+/** accessOrder 决定了顺序，默认为 false，此时维护的是插入顺序 */
+final boolean accessOrder;
+```
+LinkedHashMap最重要的是以下用于对维护顺序的函数afterNodeAccess()和afterNodeInsertion()，会在put、get等方法中调用。
+
+当一个节点被使用时，调用get方法，如果assessOrder为true，则会将该节点移到链表尾部。也就是说指定为LRU顺序之后，在每次访问一个节点时，会将这个节点移到链表尾部，保证链表尾部是最近访问的节点，那么链表首部就是最近最久未使用的点。
+```java
+void afterNodeAccess(Node<K,V> e) { // move node to last
+    LinkedHashMap.Entry<K,V> last;
+    if (accessOrder && (last = tail) != e) {
+        LinkedHashMap.Entry<K,V> p =
+            (LinkedHashMap.Entry<K,V>)e, b = p.before, a = p.after;
+        p.after = null;
+        if (b == null)
+            head = a;
+        else
+            b.after = a;
+        if (a != null)
+            a.before = b;
+        else
+            last = b;
+        if (last == null)
+            head = p;
+        else {
+            p.before = last;
+            last.after = p;
+        }
+        tail = p;
+        ++modCount;
+    }
+}
+```
+
+执行put操作之后，当 removeEldestEntry() 方法返回 true 时会移除最晚的节点，也就是链表首部节点 first。evict 只有在构建 Map 的时候才为 false，在这里为 true
+```java
+void afterNodeInsertion(boolean evict) { // possibly remove eldest
+    LinkedHashMap.Entry<K,V> first;
+    if (evict && (first = head) != null && removeEldestEntry(first)) {
+        K key = first.key;
+        removeNode(hash(key), key, null, false, true);
+    }
+}
+```
+removeEldestEntry() 默认为 false，如果需要让它为 true，需要继承 LinkedHashMap 并且覆盖这个方法的实现，这在实现 LRU 的缓存中特别有用，通过移除最近最久未使用的节点，从而保证缓存空间足够，并且缓存的数据都是热点数据。
+```java
+protected boolean removeEldestEntry(Map.Entry<K,V> eldest) {
+    return false;
+}
+```
+
+
+
+
 
 ### 多线程
 
