@@ -2,7 +2,7 @@
 
 menu:
   主页: /
-  简历: /resume
+  简历: /
 
 # SubNav
 subnav:
@@ -121,5 +121,6 @@ smart_menu:
 
 friends:
   江南白衣: http://calvin1978.blogcn.com
+  美团技术: https://tech.meituan.com/
 
 aboutme: 武汉某高校毕业<br/>尽可能多的去体验<br/>尽可能多的去思考</br>答应自己的事要做到<br/>
