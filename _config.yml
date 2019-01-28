@@ -8,7 +8,7 @@ subtitle: 永远相信美好事情即将发生
 description: 描述
 keywords: Ryan
 author: Ryan
-language: 
+language: zh-Hans
 timezone:
 
 # URL
@@ -73,7 +73,7 @@ pagination_dir: page
 # Extensions
 ## Plugins: https://hexo.io/plugins/
 ## Themes: https://hexo.io/themes/
-theme: yilia
+theme: yelee
 
 # JsonContent
 jsonContent:
