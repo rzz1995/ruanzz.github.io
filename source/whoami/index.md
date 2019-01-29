@@ -1,13 +1,25 @@
+---
+title: 关于我
+date: 2019-01-29 15:59:15
+toc: true
+---
 
-#### 关于我
+## 简介
 
-我是 Ryan，毕业于武汉某高校。
+武汉某高校数学系毕业，
+
 年轻无为，写码为生。
 
+尽可能多的去体验,
 
-#### 开源项目
+尽可能多的去思考。
 
-- [hexo-theme-diaspora](https://github.com/Fechin/hexo-theme-diaspora)：一款干净，简洁的 Hexo 主题。
+## 目前在维护的项目
+#### 个人博客
+<div class="github-widget" data-repo="ruanzz/ruanzz.github.io"></div>
+
+#### SpringCloud脚手架
+<div class="github-widget" data-repo="ruanzz/SpringCloud"></div>
 
 
 

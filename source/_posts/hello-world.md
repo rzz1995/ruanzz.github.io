@@ -1,8 +1,9 @@
 ---
 title: Hello World
 date: 2018-10-03 10:03:01
-tag: 随笔
+tag: [随笔]
 toc: true
+category: 
 ---
 <!-- ![惠灵顿](/asset/img/Wellington.jpg) -->
 
