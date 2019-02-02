@@ -1,9 +1,9 @@
 ---
-title: FLAG
+title: Flag
 toc: true
 date: 2019-01-18 22:03:46
-tags: [flag]
-category: 
+tags: [Flag]
+category: 随笔
 ---
 
 这个作为一个日期提醒自己，以后总结会需要到这个日期。

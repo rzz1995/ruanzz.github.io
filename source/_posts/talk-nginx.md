@@ -1,8 +1,9 @@
 ---
 title: 高性能Nginx(一)
 date: 2018-12-22 09:56:20
-tags: [Web,Nginx]
+tags: [Nginx]
 toc: true
+category: Web
 ---
 <!-- ![Nginx服务网关](/asset/img/nginx/nginx.png) -->
 

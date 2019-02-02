@@ -1,8 +1,9 @@
 ---
 title: Java后端面试题整理
 date: 2018-12-18 21:47:55
-tags: [interview,Java]
+tags: [Interview,Java]
 toc: true
+category: Interview
 ---
 <!-- ![惠灵顿](/asset/img/interview-summary/Mac.jpeg) -->
 
