@@ -775,6 +775,39 @@ public ThreadPoolExecutor(int corePoolSize,
 - 调用线程interrupt()方法，执行线程体业务代码之前使用interrupted()方法进行判断是否被中断，只有为false才会执行线程体,调用线程interrupt()方法之后线程体业务代码就不会再被执行。
 - 直接调用线程的stop()方法，这是jdk6以前的做法，现在是不推荐了，因为会导致线程不释放锁，有可能会出现死锁情况。
 
+> 4.说一下原子性，有序性，可见性
+
+- 原子性：一个操作或者多个操作，要么全部执行成功，要么全部不执行。
+- 可见性：当多个线程访问同一个变量时，一个线程修改了这个变量的值，其他的线程能够立即看得到修改的值
+- 有序性：程序执行的顺序按照代码的先后顺序执行，不进行执行重排。
+
+> 5.说一下Object对象的notify()和wait()方法
+
+Object对象中notify()和wait()是用来实现等待/通知模式，调用wait()方法之后线程进行等待状态，等待状态中的线程可以通过notify()方法唤醒并继续执行。等待和阻塞不同，阻塞状态的线程需要获取新的锁。wait()、notify()和notifyAll()方法需要配合synchronized使用。
+
+> 6.Synchronized实现原理
+
+synchronized可以保证方法或者代码块在执行时，同一时刻只有一个线程访问，同时还保证了共享变量的内存可见性。Java中的每一个对象都可以作为锁，属于重量级锁，jdk1.6之后进行了优化，由轻量级向重量级升级，偏向锁->自旋锁->轻量级锁->重量级锁来减少锁操作的开销。
+- 同步代码块：同步代码块锁的是括号里边的对象，monitorenter指令插入到同步代码块的开始位置，monitorexit指令插入到同步代码块的结束位置，JVM需要保证每一个monitorenter都有一个monitorexit与之对应，当Monitor被持有之后，它将处于锁定状态，线程执行到monitorenter指令时，将会尝试获取对象所对应的Monitor所有权，即尝试获取对象的锁。
+- 同步方法：synchronized方法在JVM层面并没有任何特别的指令来实现被Synchronized修饰的方法，而是在Class文件的方法表中将该方法的access_flags字段中synchronized标识位设置为1，表示方法是同步方法，并使用调用该方法的对象或该方法所属的class在JVM的内部对象做为锁对象。
+
+> 6.volatile实现原理
+
+volatile是轻量级的锁，它不会引起上下文的切换和调度。
+- 可见性：对一个volatile修饰的变量进行读操作，总可以看到对这个变量最终的写。
+- 原子性：对一个volatile修饰的变量读写具有原子性，但是符合操作除外，例如i++。
+- 禁止重排：JVM底层采用内存屏障来实现volatile语义，防止指令重排序。
+鉴于这三个特性，volatile经常用于这两个场景：状态标记常量，Double Check。
+
+> 7.锁的分类，都有那些锁？
+
+- 可重入锁：在一个线程中可以多次获取同一把锁，ReentrantLock和synchronized都是可重入锁。
+- 可中断锁：可以中断相应的锁，synchronized不是可中断的锁，Lock是可中断锁。
+- 公平锁：尽量以请求锁的顺序来获取锁。synchronized是非公平锁，Lock默认是非公平的，但是可以设置成公平锁。
+
+> 8.说一下ReentrantLock锁
+ReentrantLock，可重入锁，是一种递归无阻塞的同步机制。可以等同于synchronized的使用，但是ReentrantLock提供了更加强大，灵活的锁机制，可以减少死锁发生的概率。ReentrantLock实现了Lock接口，基于内部sync实现，Sync实现AQS,提供了FairSync和NonFairSync两种实现。Condition和Lock一起使用以实现等待/通知模式，通过await()和signal()来阻塞和唤醒线程。
+
 ### IO
 ### JVM
 >1.ClassLoader的种类，父子关系(不一定是继承)，双亲委派机制，Java为什么要用双亲委派机制?
