@@ -750,7 +750,7 @@ public ThreadPoolExecutor(int corePoolSize,
 ```
 参数解释：
 - corePoolSize: 指定线程池中线程的数量
-- maximumPoolSize: 线程池中最大的线程池数量
+- maximumPoolSize: 线程池中最大的线程数量
 - keepAliveTime: 当线程池中的线程数量超过corePoolSize的时候，多余的线程最大的存活时间
 - unit: keepAliveTime的单位
 - workQueue: 任务队列，被提交但还未被执行的任务
@@ -770,6 +770,10 @@ public ThreadPoolExecutor(int corePoolSize,
 - 丢弃最老的一个请求，将队列头的任务poll出去
 - 直接丢弃无法处理的任务，不做任何处理
 
+> 3.如何终止线程？
+
+- 调用线程interrupt()方法，执行线程体业务代码之前使用interrupted()方法进行判断是否被中断，只有为false才会执行线程体,调用线程interrupt()方法之后线程体业务代码就不会再被执行。
+- 直接调用线程的stop()方法，这是jdk6以前的做法，现在是不推荐了，因为会导致线程不释放锁，有可能会出现死锁情况。
 
 ### IO
 ### JVM
