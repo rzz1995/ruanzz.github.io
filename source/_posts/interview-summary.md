@@ -791,7 +791,7 @@ synchronized可以保证方法或者代码块在执行时，同一时刻只有�
 - 同步代码块：同步代码块锁的是括号里边的对象，monitorenter指令插入到同步代码块的开始位置，monitorexit指令插入到同步代码块的结束位置，JVM需要保证每一个monitorenter都有一个monitorexit与之对应，当Monitor被持有之后，它将处于锁定状态，线程执行到monitorenter指令时，将会尝试获取对象所对应的Monitor所有权，即尝试获取对象的锁。
 - 同步方法：synchronized方法在JVM层面并没有任何特别的指令来实现被Synchronized修饰的方法，而是在Class文件的方法表中将该方法的access_flags字段中synchronized标识位设置为1，表示方法是同步方法，并使用调用该方法的对象或该方法所属的class在JVM的内部对象做为锁对象。
 
-> 6.volatile实现原理
+> 7.volatile实现原理
 
 volatile是轻量级的锁，它不会引起上下文的切换和调度。
 - 可见性：对一个volatile修饰的变量进行读操作，总可以看到对这个变量最终的写。
@@ -799,14 +799,64 @@ volatile是轻量级的锁，它不会引起上下文的切换和调度。
 - 禁止重排：JVM底层采用内存屏障来实现volatile语义，防止指令重排序。
 鉴于这三个特性，volatile经常用于这两个场景：状态标记常量，Double Check。
 
-> 7.锁的分类，都有那些锁？
+> 8.锁的分类，都有那些锁？
 
 - 可重入锁：在一个线程中可以多次获取同一把锁，ReentrantLock和synchronized都是可重入锁。
 - 可中断锁：可以中断相应的锁，synchronized不是可中断的锁，Lock是可中断锁。
 - 公平锁：尽量以请求锁的顺序来获取锁。synchronized是非公平锁，Lock默认是非公平的，但是可以设置成公平锁。
 
-> 8.说一下ReentrantLock锁
+> 9.说一下ReentrantLock锁
+
 ReentrantLock，可重入锁，是一种递归无阻塞的同步机制。可以等同于synchronized的使用，但是ReentrantLock提供了更加强大，灵活的锁机制，可以减少死锁发生的概率。ReentrantLock实现了Lock接口，基于内部sync实现，Sync实现AQS,提供了FairSync和NonFairSync两种实现。Condition和Lock一起使用以实现等待/通知模式，通过await()和signal()来阻塞和唤醒线程。
+
+> 10.说一下读写锁
+
+ReentrantReadWriteLock维护一对锁，一个读锁，一个写锁，并发性得到较大的提升。在同一时间内，可以允许多个读线程进行访问，但是，在写线程访问时，所有读线程和写线程都会被阻塞。
+
+> 11.AQS队列同步器
+
+AQS是构建锁或者其他同步组件基础框架，包含了实现同步器的细节(获取同步状态，FIFO同步队列)。AQS的主要使用方式是继承，子类通过继承AQS,并实现它的抽象方法来管理同步状态。
+- 维护一个同步状态state，当state>0时，表示已经获取了锁，当state==0时，表示释放了锁。
+- AQS通过内置的FIFO同步队列来完成资源获取线程的排队工作，如果当前线程获取同步状态失败(锁)时，AQS则会将当前线程以及等待状态等信息构造成一个节点并将其加入同步队列，同时阻塞当前线程。当同步线程释放时，则会把节点中的线程唤醒，使其再次获取同步状态。
+
+> 12.synchronized和Lock的区别
+
+- Lock是一个接口，synchronized是Java中的关键字，是语言的内置特性。
+- synchronized在发生异常时，会自动释放所占有的锁，因此不会导致死锁现象发生；而Lock在发生异常时，如果没有主动通过unlock()去释放锁，则很可能发生死锁现象，因此，使用Lock时需要在finally块中释放锁。
+- Lock可以让等待的线程响应中断，而synchronized不行，使用synchronized时，等待的线程会一直等待下去，不能响应中断。
+- 通过Lock可以知道是否获成功获取锁，而synchronized无法办到。
+- Lock可以提高多个线程进行读操作的效率。
+
+> 13.说一下CAS
+
+Compare And Swap 比较交换，synchronized保证了代码块的原子性，但是会引起性能问题，volatile是不错的选择，但是不能保证原子性。所以需要CAS来保证原子性。
+CAS有三个参数，内存值V，旧的预期值A，要更新的值B，当且仅当内存值V的值等于旧的预期值A时，才会将内存值V修改为B，否则什么都不干。
+
+> 14.HashMap是线程安全的嘛？如何变得安全？
+
+不是线程安全的，添加元素到map中时，数据量大产生扩容操作，多线程导致HashMap的node链表形成环状的数据结构导致死循环，所以HashMap是线程不安全的。可以通过Collections.synchronizedMap()方法对HashMap进行包装，返回一个SynchronizedMap对象，在源码中SynchronizedMap也是通过synchronized方法来保证线程安全的。JUC包中的ConcurrentHashMap来进行高效安全并发，注意的是key和value都不能为null。
+
+> 15.ConcurrentHashMap的实现方式
+
+JDK1.7中采用分段锁和HashEntry使锁更加细化，其中Segment继承于ReentrantLock，理论上支持ConcurrentLevel(Segment数组数量)的线程并发。
+
+JDK1.8采用CAS+synchronized来保证并发更新的安全，当然底层使用数组+链表+红黑树的存储结构。
+table中存放Node节点数据，默认Node数据大小为16，扩容大小总是2^N,为了保证可见性，Node节点中的val和next节点都用volatile修饰，当链表长度大于8时，会转换成红黑树，节点会被包装成TreeNode放在TreeBin中。
+- put操作:
+    - 计算key对应的hash值，
+    - 如果hash表还未初始化，调用的intTable()进行初始化，否则在table中找到index位置，并通过CAS添加节点，如果链表长度超过8，则将链表转换为红黑树，如果节点总数超过，则进行扩容。
+- get操作：
+    - 无需加锁，直接根据key的hash值遍历node
+
+> 16.CountDownLatch和CyclicBarrier的区别
+
+CyclicBarrier允许一组线程相互等待，直到到达某个公共的屏障点，每个线程都调用await()方法，告诉CyclicBarrier我已经到达屏障，然后当前线程被阻塞，当所有的线程都到达了屏障，结束阻塞，所有的线程可继续执行后续逻辑。
+CountDownLatch能够使一个线程在等待另外一些线程完成各自工作之后再继续执行，使用一个计数器实现，计数器初始值为线程的数量，当每个线程完成自己任务后，计数器的值就会减一，当计数器的值为0时，表示所有的线程都完成了任务，然后CountDownLatch上等待的线程就可以恢复执行任务。
+
+> 17.什么是乐观锁和悲观锁？
+
+像synchronized这种独占锁属于悲观锁，它是在假设一定会发生冲突，那么加锁恰好有用，除此之外，还有乐观锁，乐观锁就是假设没有冲突发生，那么我正好可以进行某项操作，如果要是发生冲突呢？那我就重试直到成功，乐观锁最常见的就是CAS。
+
 
 ### IO
 ### JVM
