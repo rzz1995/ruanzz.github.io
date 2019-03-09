@@ -1069,6 +1069,48 @@ DispatherServlet
 
 11.DispatherServlet响应用户
 
+### Mybatis
+
+>1.Mybatis有什么优缺点
+
+【优点】
+1.基于SQL编程，SQL写在XML里边，与程序解耦，对JDBC做了进一步的封装，消除JDBC大量冗余的代码。
+2.与Spring有很好的集成
+3.提供映射标签，支持对象与数据库的ORM字段关系映射，提供对象关系映射标签，支持对象关系组件维护
+【缺点】
+1.SQL语句工作量大，尤其是字段多或者关联表多的时候。
+2.SQL依赖于数据库，不能随意更换数据库
+
+适用场景：
+专注于SQL，提供足够灵活的DAO解决方案
+对性能有要求或者需求变化比较多的项目
+
+>2.#{}和${}的区别
+
+\#{}是预编译处理，\${}是字符串替换
+Mybatis在处理#{}时，会将SQL中的#{}替换为?,调用PrepareStatement的set()方法来赋值，所以，#{}可以有效的防止SQL注入。处理\${}时，就是把\${}替换成变量的值。
+
+>3.实体类中的属性名和表中的字段名不一样你怎么处理？
+
+两种方案
+（1）resultType是实体类，查询SQL语句中定义字段名的别名，让字段名的别名和实体类属性名一致。
+（2）resultMap映射，将字段名和属性名的一一对应起来
+
+>4.模糊查询like怎么写？
+
+两种写法
+ (1) 在Java代码中添加sql通配符%号
+ (2) 在SQL语句中拼接通配符，会引起SQL注入，不推荐
+
+>5.通常一个xml映射文件都会与一个Mapper接口相对应，讲一下Mapper接口的工作原理，还有Mapper接口里的方法可以重载吗？
+
+Mapper接口的全限名，就是xml文件中的namespace值，Mapper接口中的方法名，就是xml中MappedStatement中的id值，Mapper接口中方法的参数，就是传递给SQL的参数。Mapper接口是没有实现类的，当调用接口方法时，接口全限名+方法名可以唯一定位一个MappedStatement。
+
+Mapper接口中方法是不能重载的，因为是通过全限名+方法名来保存和寻找MappedStatement的。
+
+Mapper接口的工作原理是JDK动态代理，Mybatis运行时会使用JDK动态代理为Mapper接口生成代理Proxy对象，代理对象Proxy会拦截接口方法，转而执行MappedStatement所代表的SQL，然后将SQL执行结果返回。
+
+
 ## 中间件
 ### MQ
 >1.为什么使用消息队列？
