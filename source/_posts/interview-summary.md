@@ -14,7 +14,7 @@ category: Interview
 ### 语法糖
 >1.String类有看过源码吗？和StringBuffer，StringBuilder有什么区别？
 
-String类是一个final不可修改的类,说明String类不能被继承，StringBuffer和StringBuilder都是用来拼接字符串用的，只有调用toString()方法的时候才会真正的new String()对象，StringBuffer是线程安全的，StringBuilder是线程不安全的，因此StringBuilder的性能会更好一点，有并发场景的话还是使用StringBuffer来比较合适。
+String类是一个final不可修改的类,说明String类不能被继承，StringBuffer和StringBuilder都是用来拼接字符串用的，只有调用toString()方法的时候才会真正的new String()对象，定义字符串的时后字符量拼接是由JVM进行优化拼接成整体放入字符串常量池中，如果有字符串变量参与了字符串的拼接，那么底层是调用StringBuilder来进行拼接。StringBuffer是线程安全的，StringBuilder是线程不安全的，因此StringBuilder的性能会更好一点，有并发场景的话还是使用StringBuffer来比较合适。
 
 >2.Throwable、Error、Exception区别和联系。受查异常和非受查异常都用过哪些，谈一下对他们的理解
 
