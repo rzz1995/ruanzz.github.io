@@ -1110,6 +1110,48 @@ Mapper接口中方法是不能重载的，因为是通过全限名+方法名来�
 
 Mapper接口的工作原理是JDK动态代理，Mybatis运行时会使用JDK动态代理为Mapper接口生成代理Proxy对象，代理对象Proxy会拦截接口方法，转而执行MappedStatement所代表的SQL，然后将SQL执行结果返回。
 
+>6.Mybatis是如何进行分页的？分页插件的原理是什么？
+
+Mybatis使用RowBounds对象进行分页，它是针对ResultSet结果集执行的内存分页。
+
+分页插件的基本原理是使用Mybatis提供的插件接口，实现自定义插件，在插件的拦截方法内拦截待执行的SQL，然后重写SQL，根据direct方言，添加对应的物理分页语句和物理分页参数。
+
+>7.Mybatis如何实现一对一查询？
+
+连表查询，只查询一次，通过在resultMap里边配置association节点配置一对一的类就可以完成。
+
+>8.Mybatis如何实现一对多查询？
+
+连表查询，只查询一次，通过在resultMap里边配置collection节点配置一对多的类就可以完成。
+
+>9.Mybatis是否支持延迟加载，如果支持，实现原理是什么？
+
+Mybatis仅支持association关联对象和collection关联集合对象的延迟加载，association指的是一对一，collection指的是的一对多，在Mybatis配置文件中，可以配置是否启用延迟加载lazyLoadingEnable=true|false
+
+实现原理是使用CGLIB创建目标对象的代理对象，当调用目标方法时，进入拦截方法，比如调用a.getB().getName()，拦截器invoke()方法发现a.getB()是null值，那么就会单独发送事先保存好的查询关联B对象的SQL，把B查询出来，然后调用a.setB(b)，这样子a.getB()就有值了，接着完成a.getB().getName()方法的调用，这就是延迟加载的原理。
+
+>10.Mybatis的一级缓存和二级缓存
+
+一级缓存，基于PrepetualCache的HashMap本地缓存，其存储作用域为本地Session，当Session flush或者close之后，该Session中的所有Cache就将清空，默认打开一级缓存。
+
+二级缓存，默认也是采用PrepetualCache的HashMap缓存，不用在于其存储作用域为Mapper,或者说是namespace，并且可以自定义存储源，比如Ehcache，默认二级缓存是不开启的，要开启二级缓存，使用二级缓存属性类需要实现序列化接口，在映射文件中配置<cache>
+
+>11.接口是如何绑定的？
+
+接口绑定有两种方式，一种是通过注解绑定，一种是通过xml绑定。
+注解绑定就是在接口的方法上面加上@Select,@Update等注解，注解里边写SQL语句。
+xml绑定就是xml里边用特定的标签来写SQL语句,通过namespace+id来绑定。
+
+>12.使用Mybatis的Mapper接口调用时有哪些要求？
+
+（1）xml中namespace即接口的全限名
+（2）Mapper接口方法名和xml中定义的每个SQL的id相同
+（3）Mapper接口方法的输入参数类型和xml中定义的SQL的parameterType的类型相同
+（4）Mapper接口方法的输出参数类型和xml中定义的SQL的resultType的类型相同
+
+
+
+
 
 ## 中间件
 ### MQ
